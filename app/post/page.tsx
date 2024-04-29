@@ -1,57 +1,32 @@
 import { db } from "@/lib/db";
-import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
-import { EditIcon } from "../asset/icons/edit-icon";
-import { DeleteIcon } from "../asset/icons/delete-icon";
-import { Button } from "@nextui-org/button";
-import { revalidatePath } from "next/cache";
-import { Input } from "@nextui-org/input";
-import EditPost from "../components/post/edit-post";
+import { PostCard } from "../components/post/post-card";
+import { Suspense } from "react";
+import PostCardLoading from "../components/PostCardLoading";
 
 export default async function Page() {
-  const posts = await db.post.findMany();
-
-  async function postDelete(formData: FormData) {
-    "use server";
-    const id = formData.get("id") as string;
-
-    const post = await db.post.delete({
-      where: {
-        id: id,
-      },
-    });
-    revalidatePath("/");
-    return post;
-  }
+  const posts = await db.post.findMany({
+    select: {
+      id: true,
+      title: true,
+      userId: true,
+      user: true,
+    },
+  });
 
   return (
     <>
       <h1>Posts</h1>
 
-      <div>
-        {posts.map((post) => (
-          <div className="mt-5">
-            <Card>
-              <CardBody>
-                <div>{post.title}</div>
-                <div className="grid grid-rows-2">
-                  <EditPost post={post} />
-                  <form action={postDelete}>
-                    <input
-                      type="hidden"
-                      name="id"
-                      value={post.id}
-                      className="border p-3"
-                    />
-                    <Button isIconOnly type="submit">
-                      <DeleteIcon className="text-red-500" />
-                    </Button>
-                  </form>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        ))}
-      </div>
+      {/* <pre className="mt-2 rounded-md bg-slate-950 p-4">
+        <code className="text-white">{JSON.stringify(posts, null, 2)}</code>
+      </pre> */}
+      <Suspense fallback={<h1>loading....</h1>}>
+        <div className="mb-20">
+          {posts.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      </Suspense>
     </>
   );
 }

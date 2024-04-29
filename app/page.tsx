@@ -3,9 +3,8 @@ import { revalidatePath } from "next/cache";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
-import { DeleteIcon } from "./asset/icons/delete-icon";
-import { EditIcon } from "./asset/icons/edit-icon";
 import { getServerSession } from "next-auth";
+import { SubmitButton } from "./components/submit-button";
 
 export default async function Home() {
   const session = await getServerSession();
@@ -13,7 +12,6 @@ export default async function Home() {
     "use server";
     const title = formData.get("title") as string;
     const userId = formData.get("userId") as string;
-    console.log(title);
 
     const post = await db.post.create({
       data: {
@@ -67,20 +65,20 @@ export default async function Home() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <Card>
-        <CardHeader>
-          <h4 className="font-bold text-large">Create a post.</h4>
-        </CardHeader>
-        <CardBody>
-          <form action={postCreate}>
-            <input type="hidden" name="userId" defaultValue={loginUser?.id} />
-            <Input type="text" name="title" label="Title" />
-            <Button type="submit" className="w-full mt-3" color="primary">
-              Create
-            </Button>
-          </form>
-        </CardBody>
-      </Card>
+      {session !== null && (
+        <Card>
+          <CardHeader>
+            <h4 className="font-bold text-large">Create a post</h4>
+          </CardHeader>
+          <CardBody>
+            <form action={postCreate}>
+              <input type="hidden" name="userId" defaultValue={loginUser?.id} />
+              <Input type="text" name="title" label="Title" />
+              <SubmitButton />
+            </form>
+          </CardBody>
+        </Card>
+      )}
     </div>
   );
 }

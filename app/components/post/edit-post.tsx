@@ -21,12 +21,11 @@ export default function EditPost({ post }: any) {
 
   async function postUpdate(formData: FormData) {
     const id = formData.get("id") as string;
-    const userId = formData.get("userId") as string;
     const title = formData.get("title") as string;
 
     const res = await fetch("/api/post", {
       method: "PUT",
-      body: JSON.stringify({ id, userId, title }),
+      body: JSON.stringify({ id, title }),
     });
 
     if (res.ok) {
